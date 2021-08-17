@@ -5,7 +5,7 @@ import "context"
 // Item represents queue item
 type Item struct{}
 
-// Queue defines the basic behaviours of a queue
+// Queue defines the basic behaviors of a queue
 type Queue interface {
 	Enqueue(*Item)
 	Dequeue(context.Context) (*Item, error)
