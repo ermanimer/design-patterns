@@ -31,7 +31,7 @@ func NewPool(address string, limit int) Pool {
 
 // Acquire acquires an idle connection from the pool
 func (p *pool) Acquire(c context.Context) (net.Conn, error) {
-	// get an idle connection or create a new connection if semaphore is empty
+	// get an idle connection or create a new connection if semaphore has enough space
 	select {
 	case connection := <-p.idleConnections:
 		return connection, nil
