@@ -21,7 +21,7 @@ var _ Queue = (*queue)(nil)
 
 // NewQueue creates and returns a new, empty queue
 func NewQueue() Queue {
-	// create items and isEmpty channels
+	// create items and isEmpty channel
 	items := make(chan []*Item, 1)
 	isEmpty := make(chan bool, 1)
 	// mark queue as empty
