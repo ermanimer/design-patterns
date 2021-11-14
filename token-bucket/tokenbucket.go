@@ -15,8 +15,8 @@ type TokenBucket struct {
 	s    chan Token
 }
 
-// NewTokenBucket creates and returns a new token bucket
-// rate is filling rate in tokens per second
+// NewTokenBucket creates and returns a new token bucket instance
+// rate is filling rate with the unit of tokens per second
 func NewTokenBucket(rate int) TokenBucket {
 	b := make(chan Token, rate)
 
@@ -26,7 +26,7 @@ func NewTokenBucket(rate int) TokenBucket {
 	}
 }
 
-// Start fills bucket and starts auto-filling
+// Start fills the bucket and starts the auto-filling process
 func (tb *TokenBucket) Start() {
 	tb.t = time.NewTicker(time.Second)
 	tb.s = make(chan Token)
@@ -47,7 +47,7 @@ func (tb *TokenBucket) Start() {
 	}()
 }
 
-// Stop stops auto-filling
+// Stop stops the auto-filling process and drains the bucket
 func (tb *TokenBucket) Stop() {
 	tb.s <- Token{}
 	<-tb.s
@@ -55,9 +55,8 @@ func (tb *TokenBucket) Stop() {
 	tb.drain()
 }
 
-// IsEmpty returns true is the token bucket is empty
-// IsEmpty uses a token for each control
-// Use to skip or discard processes for rate limiting
+// IsEmpty tries to get a token from the bucket to check if the bucket is empty
+// Use this method to skip or discard processes for rate limiting
 func (tb *TokenBucket) IsEmpty() bool {
 	select {
 	case <-tb.b:
@@ -67,7 +66,7 @@ func (tb *TokenBucket) IsEmpty() bool {
 	}
 }
 
-// fill fills bucket
+// fill fills the bucket
 func (tb *TokenBucket) fill() {
 	for i := 0; i < tb.Rate; i++ {
 		select {
@@ -77,7 +76,7 @@ func (tb *TokenBucket) fill() {
 	}
 }
 
-// drain drains bucket
+// drain drains the bucket
 func (tb *TokenBucket) drain() {
 	for i := 0; i < tb.Rate; i++ {
 		select {
