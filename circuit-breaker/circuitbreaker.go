@@ -44,10 +44,12 @@ func (cb *CircuitBreaker) Start() {
 		for {
 			select {
 			case err := <-cb.fails:
+				// ignore errors in the open state
 				if cb.state == StateOpen {
 					continue
 				}
 
+				// trip the circuit braker into the closed state on nil errors in the half-open state
 				if cb.state == StateHalfOpen {
 					if err == nil {
 						cb.state = StateClosed
@@ -55,16 +57,20 @@ func (cb *CircuitBreaker) Start() {
 					}
 				}
 
+				// do nothing on nil errors in the closed state
 				if err == nil {
 					continue
 				}
 
+				// increment the fail count on errors in the closed state
 				cb.failCount++
 			case <-cb.ticker.C:
+				// do nothing in the half-open state on each tick
 				if cb.state == StateHalfOpen {
 					continue
 				}
 
+				// increment the open duration in the open state and trip the circuit breaker into the half-open state on each tick
 				if cb.state == StateOpen {
 					cb.openDuration++
 
@@ -75,11 +81,13 @@ func (cb *CircuitBreaker) Start() {
 					continue
 				}
 
+				// if the fail count reaches the threshold trip the circuit breaker into the open state and reset the open duration in the closed state on each tick
 				if cb.failCount >= cb.Threshold {
 					cb.state = StateOpen
 					cb.openDuration = 0
 				}
 
+				// reset the fail count in the closed state on each tick
 				cb.failCount = 0
 			case <-cb.stop:
 				return
