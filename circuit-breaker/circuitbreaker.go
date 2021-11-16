@@ -109,7 +109,7 @@ func (cb *CircuitBreaker) Stop() {
 	close(cb.fails)
 }
 
-// Fail notify the circuit breaker about a failure
+// Fail notifies the circuit breaker
 func (cb *CircuitBreaker) Fail(err error) {
 	cb.fails <- err
 }
