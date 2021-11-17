@@ -17,23 +17,23 @@ func Test(t *testing.T) {
 
 	err := errors.New("sample error")
 
-	// fails under the threshold shouldn't change the circuit breaker's state
-	t.Run("fails under the treshold in the closed state", func(t *testing.T) {
+	// failures under the threshold shouldn't change the circuit breaker's state
+	t.Run("failures under the treshold in the closed state", func(t *testing.T) {
 		cb.Fail(err)
 		time.Sleep(1 * time.Second)
 		assert.Equal(t, StateClosed, cb.State())
 	})
 
-	// fails over the threshold must trip the circuit breaker into the open state
-	t.Run("fails over the treshold in the closed state", func(t *testing.T) {
+	// failures over the threshold must trip the circuit breaker into the open state
+	t.Run("failures over the treshold in the closed state", func(t *testing.T) {
 		cb.Fail(err)
 		cb.Fail(err)
 		time.Sleep(1 * time.Second)
 		assert.Equal(t, StateOpen, cb.State())
 	})
 
-	// fails in the open state shouldn't change the circuit breaker's state
-	t.Run("fails in the open state", func(t *testing.T) {
+	// failures in the open state shouldn't change the circuit breaker's state
+	t.Run("failures in the open state", func(t *testing.T) {
 		cb.Fail(err)
 		time.Sleep(1 * time.Second)
 		assert.Equal(t, StateOpen, cb.State())
@@ -45,15 +45,15 @@ func Test(t *testing.T) {
 		assert.Equal(t, StateHalfOpen, cb.State())
 	})
 
-	// non-nil fails in the half-open state shouldn't change the circuit breaker's state
-	t.Run("non-nil fails in the half-open state", func(t *testing.T) {
+	// non-nil failures in the half-open state shouldn't change the circuit breaker's state
+	t.Run("non-nil failures in the half-open state", func(t *testing.T) {
 		cb.Fail(err)
 		time.Sleep(1 * time.Second)
 		assert.Equal(t, StateHalfOpen, cb.State())
 	})
 
-	// nil fails in the half-open state should reset the circuit breaker
-	t.Run("nill fails in the half-open state", func(t *testing.T) {
+	// nil failures in the half-open state should reset the circuit breaker
+	t.Run("nill failures in the half-open state", func(t *testing.T) {
 		cb.Fail(nil)
 		time.Sleep(1 * time.Second)
 		assert.Equal(t, StateClosed, cb.State())

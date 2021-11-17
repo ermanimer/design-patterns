@@ -13,13 +13,13 @@ const (
 
 // CircuitBreaker represents circuit breaker
 // Threshold is the failure threshold in failures per second
-// Timeout is the reset timeout in seconds which is useful for tripping the circuit breaker into the half-open state
+// Timeout is the reset timeout in seconds which is useful for tripping the circuit breaker to the half-open state
 type CircuitBreaker struct {
 	Threshold    int
 	Timeout      int
 	state        int
 	fails        chan error
-	failCount    int
+	failureCount int
 	openDuration int
 	ticker       *time.Ticker
 	stop         chan struct{}
@@ -44,33 +44,33 @@ func (cb *CircuitBreaker) Start() {
 		for {
 			select {
 			case err := <-cb.fails:
-				// ignore errors in the open state
+				// ignore errors at the open state
 				if cb.state == StateOpen {
 					continue
 				}
 
-				// trip the circuit braker into the closed state on nil errors in the half-open state
+				// trip the circuit braker into the closed state on nil errors at the half-open state
 				if cb.state == StateHalfOpen {
 					if err == nil {
 						cb.state = StateClosed
-						continue
 					}
+					continue
 				}
 
-				// do nothing on nil errors in the closed state
+				// do nothing on nil errors at the closed state
 				if err == nil {
 					continue
 				}
 
-				// increment the fail count on errors in the closed state
-				cb.failCount++
+				// increment the fail count on errors at the closed state
+				cb.failureCount++
 			case <-cb.ticker.C:
-				// do nothing in the half-open state on each tick
+				// do nothing at the half-open state on each tick
 				if cb.state == StateHalfOpen {
 					continue
 				}
 
-				// increment the open duration in the open state and trip the circuit breaker into the half-open state on each tick
+				// increment the open duration at the open state and trip the circuit breaker into the half-open state on each tick
 				if cb.state == StateOpen {
 					cb.openDuration++
 
@@ -81,14 +81,14 @@ func (cb *CircuitBreaker) Start() {
 					continue
 				}
 
-				// if the fail count reaches the threshold trip the circuit breaker into the open state and reset the open duration in the closed state on each tick
-				if cb.failCount >= cb.Threshold {
+				// if the fail count reaches the threshold trip the circuit breaker into the open state and reset the open duration at the closed state on each tick
+				if cb.failureCount >= cb.Threshold {
 					cb.state = StateOpen
 					cb.openDuration = 0
 				}
 
-				// reset the fail count in the closed state on each tick
-				cb.failCount = 0
+				// reset the fail count at the closed state on each tick
+				cb.failureCount = 0
 			case <-cb.stop:
 				return
 			}
@@ -104,7 +104,7 @@ func (cb *CircuitBreaker) Stop() {
 	<-cb.stop
 
 	cb.state = StateClosed
-	cb.failCount = 0
+	cb.failureCount = 0
 
 	close(cb.fails)
 }
