@@ -50,6 +50,6 @@ func TestGet(t *testing.T) {
 
 	value4 := c.Get(key1).(string)
 	if value4 != value1 {
-		t.Error("an existing key value pair don't match")
+		t.Error("an existing key's value doesn't match")
 	}
 }
