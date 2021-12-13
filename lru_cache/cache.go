@@ -14,7 +14,7 @@ type Cache interface {
 // cache implements Cache interface
 type cache struct {
 	size  int                    // size is the capacity of the cache
-	keys  *list.List             // keys holds the keys of the cached values. It is useful for lru algorithm
+	keys  *list.List             // keys holds the keys of the cached values
 	items map[string]interface{} // items holds the cached key value pairs
 	mutex sync.Mutex
 }
@@ -22,7 +22,7 @@ type cache struct {
 // NewCache creates and returns a new cache
 func NewCache(size int) Cache {
 	if size < 1 {
-		panic("invalid cache size")
+		panic("invalid size")
 	}
 
 	return &cache{
@@ -35,23 +35,23 @@ func NewCache(size int) Cache {
 
 // Get returns the value of a key from the cache.
 // Returns nil if the key doesn't exist.
-// Moves the key to the front to satisfy lru algorithm.
+// Moves the key to the front to indicate that the key is recently used.
 func (c *cache) Get(key string) interface{} {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	v, ok := c.items[key]
+	value, ok := c.items[key]
 	if !ok {
 		return nil
 	}
 
 	c.moveKeyToFront(key)
 
-	return v
+	return value
 }
 
 // Put puts a key value pair to the cache.
-// Moves the existing pair's key to the front or pushes a new key to the front to satisfy the lru algorithm.
+// Moves the existing pair's key to the front or pushes a new key to the front to indicate that the key is recently used.
 // Removes the least recently used key value pair if cache is full.
 func (c *cache) Put(key string, value interface{}) {
 	c.mutex.Lock()
