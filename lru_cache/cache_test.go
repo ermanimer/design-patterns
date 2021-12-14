@@ -7,26 +7,34 @@ import (
 func TestGetPut(t *testing.T) {
 	c := NewCache(2).(*cache)
 
-	key1 := "key1"
-	value1 := "value1"
-	key2 := "key2"
-	value2 := "value2"
-	key3 := "key3"
-	value3 := "value3"
+	item1 := Item{
+		Key:   "key1",
+		Value: "value1",
+	}
 
-	c.Put(key1, value1)
-	c.Put(key2, value2)
-	if len(c.items) != 2 {
+	item2 := Item{
+		Key:   "key2",
+		Value: "value2",
+	}
+
+	item3 := Item{
+		Key:   "key3",
+		Value: "value3",
+	}
+
+	c.Put(item1)
+	c.Put(item2)
+	if c.items.Len() != 2 {
 		t.Error("item count should be 2 after putting 2 keys")
 	}
 
-	c.Put(key1, value1)
-	if len(c.items) != 2 {
+	c.Put(item1)
+	if c.items.Len() != 2 {
 		t.Error("item count should stay the same after putting an existing key")
 	}
 
-	c.Put(key3, value3)
-	if len(c.items) != 2 {
+	c.Put(item3)
+	if c.items.Len() != 2 {
 		t.Error("item count should stay the same after putting a new key that overflows the cache")
 	}
 }
@@ -34,22 +42,31 @@ func TestGetPut(t *testing.T) {
 func TestGet(t *testing.T) {
 	c := NewCache(3).(*cache)
 
-	key1 := "key1"
-	value1 := "value1"
-	key2 := "key2"
-	value2 := "value2"
-	key3 := "key3"
-
-	c.Put(key1, value1)
-	c.Put(key2, value2)
-
-	value3 := c.Get(key3)
-	if value3 != nil {
-		t.Error("a non-existing key's value should be nil")
+	item1 := Item{
+		Key:   "key1",
+		Value: "value1",
 	}
 
-	value4 := c.Get(key1).(string)
-	if value4 != value1 {
-		t.Error("an existing key's value doesn't match")
+	item2 := Item{
+		Key:   "key2",
+		Value: "value2",
+	}
+
+	item3 := Item{
+		Key:   "key3",
+		Value: "value3",
+	}
+
+	c.Put(item1)
+	c.Put(item2)
+
+	item4 := c.Get(item3.Key)
+	if item4 != nil {
+		t.Error("a non-existing item's key should return a nil item")
+	}
+
+	item5 := c.Get(item1.Key)
+	if item5.Value.(string) != item1.Value.(string) {
+		t.Error("an existing items key's should return the existing item")
 	}
 }
